@@ -1,0 +1,873 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Screenshot
+Library           ExcelLibrary
+Library           Collections
+Library           CreateExcelFile.ExcelUtility
+Resource          DataDrivenApproach/CreateExcelFile
+
+*** Variables ***
+${BROWSER}        chrome
+${TIMEOUT}        10
+${DELAY}          5
+${VALID USER}     munshi.disha@tcs.com.uat
+${VALID PASSWORD}    Dimelo@2016
+${LOGIN URL}      https://test.salesforce.com/
+${PATH}           C:\Python27\Scripts\screenshots
+${Product}        Arkadine
+${opportunityName}    AutoSample9122015
+${opportunityClosedDate}    23.12.2015
+${configuratorFname}    matti
+${configuratorLname}    kaijoma
+${configuratorEmailID}    liana.miana@u.com
+${configuratorJobTitle}    Consultant
+${Country}        Finland
+${Language}       Finnish
+${TimeZone}       GMT
+${OrderSubmissionMessage}    Order Validated and Submitted
+${USER}           online
+${PASSWORD}       omaelisa1
+${LOGIN URL online}    https://ui.yrityksille-uat.elisa.fi/
+${FF_PROFILE}     C:\Python27\FF_PROFILE
+${ExcelFilepath}    C:\\Python27\\ExcelRobotTest\\
+
+*** Keywords ***
+Login With Valid Credentials
+    [Arguments]    ${VALID USER}    ${VALID PASSWORD}
+    Open Browser    ${LOGIN URL}    ${BROWSER}
+    Maximize Browser Window
+    set selenium speed    1
+    Go To    ${LOGIN URL}
+    Input Text    username    ${VALID USER}
+    Input Text    password    ${VALID PASSWORD}
+    Click Button    Login
+    comment    Open Browser    ${LOGIN URL}    ${BROWSER}    remote_url=http://127.0.0.1:4444/wd/hub    desired_capabilities=setJavascriptEnabled:true
+
+Opportunity Creation
+    Wait Until Page Contains Element    Account_Tab    20
+    Click Element    Account_Tab
+    Take Screenshot    Trail.jpg
+    Click Link    xpath=//a[contains(text(),'Test Sanity 12th nov')]
+    Click Button    New Opportunity
+    Select From List By Label    xpath=.//*[@id='p3']    Sale without Service Contract
+    comment    Select From List By Value    xpath=.//*[@id='p3']    012m00000004OUr
+    Click Button    xpath=.//*[@id='bottomButtonRow']/input[1]
+    Input Text    xpath=//input[@id='opp3']    ${opportunityName}
+    Click Image    User Account Lookup (New Window)
+    Select Window    Title=Search ~ Salesforce - Performance Edition
+    Select Frame    id=resultsFrame
+    Click link    xpath=//a[contains(text(),'Test Sanity 12th nov')]
+    Select Window
+    Input Text    xpath=.//*[@id='opp9']    ${opportunityClosedDate}
+    Select From List By Value    xpath=.//*[@id='opp11']    Needs Analysis
+    click element    xpath=.//*[@id='00Nm0000000qHgA']
+    Click Button    save
+    ${oppoName}    get text    xpath=.//*[@id='bodyCell']/div[1]/div[1]/div[1]/h2
+    click element    xpath=.//*[@id='Opportunity_Tab']/a
+    click link    link=${oppoName}
+    Click Link    css=a[id$='option1']
+
+editProductbasket
+    [Arguments]    ${configuratorFname}    ${configuratorLname}    ${configuratorEmailID}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Opportunity Creation
+    Click element    name=select_contact
+    sleep    5s
+    Select window    Title=Search
+    click link    xpath=//a[contains(text(),'Mr. Test Sanity 12Nov Con Test')]
+    Select window
+    Click element    name=select_billing_account
+    sleep    5s
+    Select window    Title=Search
+    click link    css=a[id^='pg:j_id0']
+    Select window
+    Click link    xpath=//a[contains(@title,'Edit - Record 1 - Default Basket')]
+    Wait Until Page Contains Element    xpath=//select[@id='addDetailedProduct']    20
+    scrollpageToLocation    0    1000
+    Wait Until Element Is Visible    xpath=//select[@id='addDetailedProduct']    40
+    Select From List By Label    xpath=//select[@id='addDetailedProduct']    Conference Solutions
+    Click Button    xpath=//input[@id='AddToBasket']
+    Wait Until Page Contains Element    xpath=//*[contains(@title,'Available offers')]    40
+    Click Element    xpath=//*[contains(@title,'Available offers')]
+    sleep    10s
+    Click Element    //span[contains(., 'Nevotullu test offer')]
+    wait until element is visible    xpath=//*[contains(@title,'Edit product configuration')]
+    Click Element    xpath=//*[contains(@title,'Edit product configuration')]
+    sleep    10s
+    select frame    configurationEditIFrame
+    wait until element is visible    xpath=.//*[@id='First_Name_0:_display']
+    sleep    5s
+    input text    xpath=.//*[@id='First_Name_0:_display']    ${configuratorFname}
+    input text    xpath=.//*[@id='Last_Name_0:_display']    ${configuratorLname}
+    input text    xpath=.//*[@id='Email_0:_display']    ${configuratorEmailID}
+    input text    xpath=//input[@id='Job_Title_0:_display']    ${configuratorJobTitle}
+    Click Element    xpath=.//*[@id='s2id_Country_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${Country}
+    Wait Until Element Is Enabled    xpath=.//*[@id='select2-drop']/ul/li[1]/div/table    20
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[1]/div/table
+    Click Element    xpath=.//*[@id='s2id_Language_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${Language}
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[1]/div
+    Click Element    xpath=.//*[@id='s2id_TimeZone_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${TimeZone}
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[3]/div/table
+    sleep    10s
+    click element    xpath=//*[@id='j_id0:configure:j_id94:frmConfigurator:j_id179:j_id180:j_id199:j_id200:CSFinishButton']
+    Wait Until Page Contains Element    xpath=.//*[@id='manageBasketSynchronizeWithOpportunity']    30
+    click Element    xpath=.//*[@id='manageBasketSynchronizeWithOpportunity']
+    Wait Until Page Contains Element    xpath=.//*[@id='opp11_ileinner']    20
+    Double Click Element    xpath=.//*[@id='opp11_ileinner']
+    select from list by value    xpath=.//*[@id='opp11']    Closed Won
+    select from list by value    xpath=.//*[@id='00Nm0000000qHgB_unselected']    0
+    click element    xpath=.//*[@id='00Nm0000000qHgB_ileinneredit']/table/tbody/tr/td[2]/a[1]/img
+    click element    xpath=.//*[@id='InlineEditDialog_buttons']/input[1]
+    click element    xpath=//*[contains(@title,'Save')]
+    Wait Until Page Contains Element    xpath=.//*[@id='opp11_ileinner']    20
+    scrollpageToLocation    0    1500
+    Wait Until Page Does Not Contain    //html/body/div[1]/div[2]/table/tbody/tr/td[2]/div[14]/div[1]/div/div[2]/table/tbody/tr[2]/th/a    40
+    click element    //html/body/div[1]/div[2]/table/tbody/tr/td[2]/div[14]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    click element    xpath=//*[contains(@title,'Validate and Submit Order')]
+    ${message}=    Confirm Action
+    Should Be Equal    ${message}    Order Validated and Submitted
+    close browser
+
+ClosedWon
+    Wait Until Page Does Not Contain Element    xpath=.//*[@id='opp11_ileinner']    20
+    Double Click Element    xpath=.//*[@id='opp11_ileinner']
+    select from list by value    xpath=.//*[@id='opp11']    Closed Won
+    select from list by value    xpath=.//*[@id='00Nm0000000qHgB_unselected']    0
+    click element    xpath=.//*[@id='00Nm0000000qHgB_ileinneredit']/table/tbody/tr/td[2]/a[1]/img
+    click element    xpath=.//*[@id='InlineEditDialog_buttons']/input[1]
+    click element    xpath=//*[contains(@title,'Save')]
+    Element Text Should Be    xpath=.//*[@id='opp11_ileinner']    Closed Won
+    click element    xpath=.//*[@id='006m0000005D62u_00Nb00000091VoV_body']/table/tbody/tr[2]/th/a
+    click element    xpath=//*[contains(@title,'Validate and Submit Order')]
+    Alert Should Be Present    Order Validated and Submitted
+
+scrollpageToLocation
+    [Arguments]    ${x_location}    ${y_location}
+    Execute JavaScript    window.scrollTo(${x_location},${y_location})
+
+editproductbasketNetti
+    [Arguments]    ${Product}
+    log    i am in netti
+
+editProductBasketDevices
+    [Arguments]    ${Product}
+    log    i am in devices
+
+editProductBasketNeuvotellu
+    [Arguments]    ${Product}
+    log    i am in neuvotellu
+    Click element    name=select_contact
+    sleep    5s
+    Select window    Title=Search
+    click link    xpath=//a[contains(text(),'Mr. Test Sanity 12Nov Con Test')]
+    Select window
+    Click element    name=select_billing_account
+    sleep    5s
+    Select window    Title=Search
+    click link    css=a[id^='pg:j_id0']
+    Select window
+    Click link    xpath=//a[contains(@title,'Edit - Record 1 - Default Basket')]
+    Wait Until Page Contains Element    xpath=//select[@id='addDetailedProduct']    20
+    scrollpageToLocation    0    1000
+    Wait Until Element Is Visible    xpath=//select[@id='addDetailedProduct']    20
+    Select From List By Label    xpath=//select[@id='addDetailedProduct']    Conference Solutions
+    Click Button    xpath=//input[@id='AddToBasket']
+    Wait Until Page Contains Element    xpath=//*[contains(@title,'Available offers')]    20
+    Click Element    xpath=//*[contains(@title,'Available offers')]
+    sleep    10s
+    Click Element    //span[contains(., 'Nevotullu test offer')]
+    wait until element is visible    xpath=//*[contains(@title,'Edit product configuration')]
+    Click Element    xpath=//*[contains(@title,'Edit product configuration')]
+    sleep    10s
+    select frame    configurationEditIFrame
+    wait until element is visible    xpath=.//*[@id='First_Name_0:_display']
+    sleep    5s
+    input text    xpath=.//*[@id='First_Name_0:_display']    ${configuratorFname}
+    input text    xpath=.//*[@id='Last_Name_0:_display']    ${configuratorLname}
+    input text    xpath=.//*[@id='Email_0:_display']    ${configuratorEmailID}
+    input text    xpath=//input[@id='Job_Title_0:_display']    ${configuratorJobTitle}
+    Click Element    xpath=.//*[@id='s2id_Country_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${Country}
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[1]/div/table
+    Click Element    xpath=.//*[@id='s2id_Language_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${Language}
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[1]/div
+    Click Element    xpath=.//*[@id='s2id_TimeZone_0_Name']/a/span[1]
+    input text    xpath=.//*[@id='select2-drop']/div/input    ${TimeZone}
+    Click Element    xpath=.//*[@id='select2-drop']/ul/li[3]/div/table
+    sleep    10s
+    click element    xpath=//*[@id='j_id0:configure:j_id94:frmConfigurator:j_id179:j_id180:j_id199:j_id200:CSFinishButton']
+    Wait Until Page Contains Element    xpath=.//*[@id='manageBasketSynchronizeWithOpportunity']    30
+    click Element    xpath=.//*[@id='manageBasketSynchronizeWithOpportunity']
+    Wait Until Page Contains Element    xpath=.//*[@id='opp11_ileinner']    20
+    Double Click Element    xpath=.//*[@id='opp11_ileinner']
+    select from list by value    xpath=.//*[@id='opp11']    Closed Won
+    select from list by value    xpath=.//*[@id='00Nm0000000qHgB_unselected']    0
+    click element    xpath=.//*[@id='00Nm0000000qHgB_ileinneredit']/table/tbody/tr/td[2]/a[1]/img
+    click element    xpath=.//*[@id='InlineEditDialog_buttons']/input[1]
+    click element    xpath=//*[contains(@title,'Save')]
+    Wait Until Page Contains Element    xpath=.//*[@id='opp11_ileinner']    20
+    scrollpageToLocation    0    1500
+    Wait Until Page Does Not Contain    //html/body/div[1]/div[2]/table/tbody/tr/td[2]/div[14]/div[1]/div/div[2]/table/tbody/tr[2]/th/a    20
+    click element    //html/body/div[1]/div[2]/table/tbody/tr/td[2]/div[14]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    click element    xpath=//*[contains(@title,'Validate and Submit Order')]
+    ${message}=    Confirm Action
+    Should Be Equal    ${message}    ${OrderSubmissionMessage}
+
+OnlineLogin
+    [Arguments]    ${USER}    ${PASSWORD}
+    open browser    ${LOGIN URL online}    ${BROWSER}
+    Maximize Browser Window
+    set selenium speed    1
+    go to    ${LOGIN URL online}
+    click element    xpath=//*[@id="header"]/div[2]/div[1]/ul/li[2]
+    input text    xpath=//*[@id="account-modal"]/div/div/div/form/div[3]/div[2]/div/input    ${USER}
+    input text    xpath=//*[@id="account-modal"]/div/div/div/form/div[3]/div[3]/div/input    ${PASSWORD}
+    click element    xpath=//*[@id="account-modal"]/div/div/div/form/div[5]/input
+    Reload Page
+    click element    xpath=//*[@id='header']/div[2]/div[1]/nav/ul/li[2]/a
+    click element    xpath=//*[@id='navigation-panel']/div/div[2]/ul/li[3]/a
+    click element    xpath=//*[@id='navigation-panel']/div/div[3]/ul/li[4]/a
+    click element    xpath=//*[@id='navigation-panel']/div/div[4]/div/nav/ul/li
+    click element    xpath=//*[@id='block-2TD0Y0MOfug8coOYYiaGm2']/div/div/div/div[2]/div[3]/div
+    click element    xpath=//*[@id='modal-cart']/div[3]/a
+    click element    xpath=//*[@id='order-submit-button']
+
+CreateAccount
+    [Arguments]    ${CompanyName}    ${VATCODE}    ${LastName}    ${FirstName}    ${Mobile}    ${EmailID}
+    ...    ${CustomerType}    ${SAPCODE}    ${Custlanguage}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    click element    name=new
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div[1]/div/div/div/div[1]/table/tbody/tr/td[2]/input[1]
+    input text    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    ${CompanyName}
+    click element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id4:searchButton']
+    Wait Until Page Contains Element    xpath=//*[contains(@value, 'Create New')]
+    click element    xpath=//*[contains(@value, 'Create New')]
+    sleep    5s
+    input text    xpath=//*[@id='00N8E000000OtrF']    ${VATCODE}
+    INPUT TEXT    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[1]/td[2]/div/input    Pakkamestarinkatu
+    INPUT TEXT    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[3]/td[2]/div/input    00520
+    INPUT TEXT    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[4]/td[2]/div/input    pasila
+    input text    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[1]/td[4]/input    Pakkamestarinkatu
+    INPUT TEXT    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[3]/td[4]/input    00520
+    INPUT TEXT    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[4]/td[4]/input    pasila
+    Select From List By Value    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr[5]/td[4]/span/select    FIN
+    click element    xpath=//*[@id='bottomButtonRow']/input[1]
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    ${LastName}
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:1:j_id39']    ${FirstName}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:2:j_id39']    ${Mobile}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:4:j_id39']    ${EmailID}
+    Select From List By value    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_unselected']    0
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_right_arrow']
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id29:j_id30']
+    CreateBillingAccount
+    [Teardown]
+
+CreateBillingAccount
+    scrollpageToLocation    0    2500
+    click element    name=create_new_billing_account
+    click element    xpath=//*[contains(@value,'Next')]
+    Select From List By Value    xpath=//*[@id='j_id0:j_id3:j_id4:additionalInfoSection:j_id51']    301
+    click element    xpath=//*[contains(@value,'Save')]
+    ${BillingNumber}=    Get Text    xpath=//*[@id='00N8E000000Otry_ileinner']
+    log    ${BillingNumber}
+    comment    ${length} =    Get Length    ${BillingNumber}
+    comment    Length Should Be    ${length}    9
+    Should Match Regexp    ${BillingNumber}    \\d{9}
+    Should Start With    ${BillingNumber}    67
+    sleep    6
+    reload page
+    ${ABP number}=    Get Text    xpath=//*[@id='00N8E000000Otrg_ileinner']
+    log    ${ABP number}
+    comment    comment    Element Should Not Contain    xpath=//*[@id='00N8E000000VM3f_ileinner']    ${EMPTY}
+    comment    Run Keyword if    ${ABP number}=='None'    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[4]/div[2]/div[2]/table/tbody/tr[3]/td[2]/div/a
+    comment    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[4]/div[2]/div[2]/table/tbody/tr[3]/td[2]/div/a
+    comment    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[11]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    comment    ${ABP Number}=    get text    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[4]/div[2]/div[12]/table/tbody/tr[4]/td[4]/div
+    comment    log    ${ABP Number}
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[4]/div[2]/div[2]/table/tbody/tr[3]/td[2]/div/a
+    Opportunity_Creation_Devices
+
+Create Opportunity
+    scrollpageToLocation    0    1500
+    click element    name=new_opportunity
+    click element    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button
+    sleep    3s
+    scrollpageToLocation    0    1000
+    click element    xpath=//*[@id='a0F8E00000480xxUAA~a0Y8E000000PrrTUAS_anchor']/i[1]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[2]/div/ul/li[2]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[2]/div/ul/li[3]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[3]/div[1]/div/div[1]/div[3]/div[7]/button
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[3]/div[1]/div/div[2]/div/div/div[5]/div[1]/div
+    click button    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[4]/div[2]/button
+    Wait Until Element Is Visible    xpath=//*[contains(text(),'QA Zyxel VMG3925 20th Apr')]    20
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'QA Zyxel VMG3925 20th Apr')]/../../preceding-sibling::div/button[2]    10
+    click element    xpath=//*[contains(text(),'QA Zyxel VMG3925 20th Apr')]/../../preceding-sibling::div/button[2]
+    comment    ${frames}=    Execute Javascript
+    comment    log    ${frames}
+    comment    select frame    ${frames}
+    comment    Execute Javascript    window.document.my_element= window.document.getElementsByTagName('iframe')[2]    window.document.getElementsByTagName('iframe')
+    comment    ${Iframe}=    Execute Javascript
+    comment    log    ${Iframe}
+    comment    click element    ${Iframe}
+    select frame    xpath=//*[@id="EditProductDialog"]/iframe
+    Wait Until Page Contains Element    xpath=//*[@id='Elisa_Netti:Date_Availability_Check_Section:DesiredDeliveryDate_0']
+    input text    xpath=//*[@id='Elisa_Netti:Date_Availability_Check_Section:DesiredDeliveryDate_0']    21.4.2016
+    input text    xpath=//*[@id='Elisa_Netti:Date_Availability_Check_Section:DesiredDeliveryDate_0']    21.4.2016
+    sleep    5s
+    comment    Element Should Contain    xpath=//*[@id='DACrequeststatus_0:_display']
+    comment    Wait Until Element Is Visible    xpath=//*[@id='DACrequeststatus_0:_display']
+    comment    Wait Until Element Contains    xpath=//*[@id='DACrequeststatus_0:_display']
+    Element Text Should Be    xpath=//*[@id='Elisa_Netti:Date_Availability_Check_Section:DACrequeststatus_0']    Success
+    click element    xpath=//*[@id='s2id_Elisa_Netti:Date_Availability_Check_Section:Availabledates_0']/a/span[1]
+    click element    xpath=//*[@id='select2-drop']/ul[2]/li[2]/div/div/div/div
+    comment    click element    xpath=//*[@id='Elisa_Netti:Financial_Section:salePrice_0']
+    click element    xpath=//button[contains(text(),'Finish')]
+    sleep    5s
+    select window
+    Wait Until Element Is Visible    xpath=//*[@id='select2-chosen-12']    60
+    click element    xpath=//*[@id='select2-chosen-12']
+    click element    xpath=//*[@id="select2-results-12"]/li[6]
+    input text    xpath=//*[@id="bodyCell"]/div/div[3]/div/div[1]/div/div[2]/div[2]/div[2]/div/div[2]/input    2016-01-25
+    click element    xpath=//*[@id="bodyCell"]/div/div[3]/div/header/div[4]/span/button
+    click Element    xpath=//*[@id="bodyCell"]/div/div[3]/div/header/div[1]/span/button
+    Get Window Titles
+    select window
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr/td[2]/div/span/select
+    Select From List By Label    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr/td[2]/div/span/select    Won: Customer Satisfaction with Elisa
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[1]/table/tbody/tr/td[2]/input[1]
+    scrollpageToLocation    0    1000
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[7]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    Double click element    xpath=//*[@id='CF00N8E000000VM4z_ileinner']
+    Click element    xpath=//*[@id='CF00N8E000000VM4zIcon']/img
+    Select Window    Title=Search ~ Salesforce - Performance Edition
+    Select Frame    id=resultsFrame
+    Click link    xpath=//*[@id='new']/div/div[2]/div/div[2]/table/tbody/tr[2]/th/a
+    select window
+    click button    xpath=//*[contains(@value,'Save')]
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[4]/div[1]/table/tbody/tr/td[2]/input[5]
+    sleep    2s
+    Alert Should Be Present    Order Validated and Submitted
+    comment    Dismiss Alert
+    comment    sleep    3s
+    Element Should Contain    xpath=//*[@id="00N20000009pIJP_ileinner"]    Submitted
+    scrollpageToLocation    0    1500
+    click link    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[5]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    sleep    5s
+    reload page
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    Created
+    sleep    540s
+    reload page
+    reload page
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    Active
+    scrollpageToLocation    0    1500
+    select frame    xpath=//*[@id="0668E0000000GZB"]
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Order is submitted successfully')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Workforce Reservation Completed Successfully')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+
+Opportunity_Creation_Devices
+    scrollpageToLocation    0    1500
+    click element    name=new_opportunity
+    click element    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button
+    sleep    3s
+    scrollpageToLocation    0    1000
+    click element    xpath=//*[@id='a0F8E00000480tQUAQ~a0Y8E000000KgWsUAK_anchor']/i[1]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[4]/div[2]/button
+    Wait Until Element Is Visible    xpath=//*[contains(text(),'Galaxy S7 Black Spring')]    20
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'Galaxy S7 Black Spring')]/../../preceding-sibling::div/button[2]    10
+    click element    xpath=//*[contains(text(),'Galaxy S7 Black Spring')]/../../preceding-sibling::div/button[2]
+    select frame    xpath=//*[@id="EditProductDialog"]/iframe
+    Wait Until Element Is Visible    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    40
+    input text    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    26.2.2016
+    input text    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    26.2.2016
+    click element    xpath=//*[@id='Handheld_Devices:Availability_details:Pre_Installation_Text_0']
+    scrollpageToLocation    0    2000
+    click element    xpath=(//button[contains(text(),'Finish')])
+    select window
+    Wait Until Page Contains Element    xpath=//*[@id='select2-chosen-12']    40
+    click element    xpath=//*[@id='select2-chosen-12']
+    click element    xpath=//*[@id="select2-results-12"]/li[6]
+    input text    xpath=//*[@id="bodyCell"]/div/div[3]/div/div[1]/div/div[2]/div[2]/div[2]/div/div[2]/input    2016-01-25
+    click element    xpath=//*[@id="bodyCell"]/div/div[3]/div/header/div[4]/span/button
+    click Element    xpath=//*[@id="bodyCell"]/div/div[3]/div/header/div[1]/span/button
+    Get Window Titles
+    select window
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr/td[2]/div/span/select
+    Select From List By Label    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[2]/div[5]/table/tbody/tr/td[2]/div/span/select    Won: Customer Satisfaction with Elisa
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/form/div/div[1]/table/tbody/tr/td[2]/input[1]
+    scrollpageToLocation    0    1000
+    click element    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[7]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    click element    xpath=//*[@id='topButtonRow']/input[5]
+    sleep    2s
+    comment    alert    Order Validated and Submitted
+    reload page
+    Alert Should Be Present    Order Validated and Submitted
+    Element Should Contain    xpath=//*[@id="00N20000009pIJP_ileinner"]    Submitted
+    scrollpageToLocation    0    1500
+    click link    //html/body/div[1]/div[3]/table/tbody/tr/td[2]/div[5]/div[1]/div/div[2]/table/tbody/tr[2]/th/a
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    Created
+    sleep    360s
+    reload page
+    scrollpageToLocation    0    1000
+    select frame    xpath=//*[@id="0668E0000000GZB"]
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Order is submitted successfully')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Equipment Delivery Started from SAP')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Services have been delivered in Comptel')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+
+Place Order on Existing customer
+    [Arguments]    ${VATCODE}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    input text    xpath=//*[@id='phSearchInput']    ${VATCODE}
+    click element    xpath=//*[@id='phSearchButton']
+    click element    xpath=//*[@id='Account_body']/table/tbody/tr[2]/th/a
+    scrollpageToLocation    0    2000
+    click element    name=new_opportunity
+    Wait Until Element Is Visible    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button    20
+    click element    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button
+    sleep    3s
+    scrollpageToLocation    0    1000
+    click element    xpath=//*[@id='a0F8E00000517WuUAI~a0Y8E000001AgzmUAC_anchor']/i[1]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[4]/div[2]/button
+    Wait Until Element Is Visible    xpath=//*[contains(text(),'Samsung Omnia 7 musta')]    60
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'Samsung Omnia 7 musta')]/../../preceding-sibling::div/button[2]    10
+    click element    xpath=//*[contains(text(),'Samsung Omnia 7 musta')]/../../preceding-sibling::div/button[2]
+    Wait Until Page Contains Element    xpath=//*[@id="EditProductDialog"]/iframe    30
+    select frame    xpath=//*[@id="EditProductDialog"]/iframe
+    Wait Until Element Is Visible    xpath=//*[@id='s2id_Handheld_Devices:General_Information:Contract_Period_Lookup_0']/a/span[1]    40
+    click element    xpath=//*[@id='s2id_Handheld_Devices:General_Information:Contract_Period_Lookup_0']/a/span[1]
+    click element    xpath=//*[@id='select2-drop']/ul[2]/li/div/div/div/div
+    Wait Until Element Is Visible    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    40
+    click element    xpath=//*[@id='j_id0:j_id2:0:j_id3:0:j_id6:3:j_id8:1:j_id16']/span[2]/span/a
+    comment    input text    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    17.6.2016
+    comment    input text    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    17.6.2016
+    comment    input text    xpath=//*[@id='Handheld_Devices:Availability_details:DesiredDeliveryDate_0']    17.6.2016
+    scrollpageToLocation    0    500
+    Wait Until Page Contains Element    xpath=//*[@id='s2id_Handheld_Devices:Availability_details:Availabledates_0']/a/span[1]    60
+    click element    xpath=//*[@id='s2id_Handheld_Devices:Availability_details:Availabledates_0']/a/span[1]
+    Wait Until Page Contains Element    xpath=//*[@id='select2-drop']/ul[2]/li/div/div/div/div
+    click element    xpath=//*[@id='select2-drop']/ul[2]/li/div/div/div/div
+    input text    xpath=//*[@id='Handheld_Devices:Shipping_details:Recipient_Name_0']    Disha
+    scrollpageToLocation    0    2000
+    click element    xpath=(//button[contains(text(),'Finish')])
+    sleep    8s
+    select window
+    Wait Until Page Contains Element    xpath=//*[@id='s2id_autogen11']/a    60
+    click element    xpath=//*[@id='s2id_autogen11']/a
+    click element    xpath=//*[@id="select2-results-12"]/li[5]
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[4]/span/button
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[1]/span/button
+    sleep    2s
+    select window
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id='00N8E000000YQht']
+    Select From List By Value    xpath=//*[@id='00N8E000000YQht']    No Competitor
+    Select From List By Value    xpath=//*[@id='00N8E000000YQ1j']    Won: Elisa offering better than competitors
+    click element    xpath=//*[contains(@value,'Save')]
+    click element    xpath=//*[@id='j_id0:j_id1:j_id2:j_id3']/input
+    sleep    4s
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'Order Name')]/../following-sibling::tr/th/a    40
+    scrollpageToLocation    0    1500
+    Click element    xpath=//*[contains(text(),'Order Name')]/../following-sibling::tr/th/a
+    Wait Until Page Contains Element    xpath=//*[contains(@value,'Validate and Submit Order')]
+    click element    xpath=//*[contains(@value,'Validate and Submit Order')]
+    Alert Should Be Present    Order Validated and Submitted
+    comment    Dismiss Alert
+    comment    sleep    3s
+    Element Should Contain    xpath=//*[@id="00N8E000000YQij_ileinner"]    Submitted
+    scrollpageToLocation    0    1500
+    click link    xpath=//*[contains(text(),'Subscription Name')]/../following-sibling::tr/th/a
+    sleep    5s
+    reload page
+    Element Should Contain    xpath=//*[@id="00N8E000000YQiv_ileinner"]    Created
+    sleep    540s
+    reload page
+    reload page
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    In Activation
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Equipment Delivery Started from SAP')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Services have been delivered in Comptel')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+
+CreateAccount_BillingData
+    [Arguments]    ${CompanyName}    ${VATCODE}    ${LastName}    ${FirstName}    ${Mobile}    ${EmailID}
+    ...    ${CustomerType}    ${SAPCODE}    ${Custlanguage}    ${CollectionProcess}    ${Payment Term}    ${Phone}
+    ...    ${website}    ${Billing Channel}    ${BillingLanguage}    ${BillFormatType}    ${BillCycle}    ${Ref1}
+    ...    ${Ref2}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    click element    name=new
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]    10
+    click element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    20
+    input text    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    ${CompanyName}
+    click element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id4:searchButton']
+    Wait Until Page Contains Element    xpath=//*[contains(@value, 'Create New')]
+    click element    xpath=//*[contains(@value, 'Create New')]
+    Wait Until Page Contains Element    xpath=//*[@id='00N8E000000VBng']    30
+    Select From List By Value    xpath=//*[@id='00N8E000000VBng']    ${CustomerType}
+    input text    xpath=//*[@id='00N8E000000VBoz']    ${VATCODE}
+    input text    xpath=//*[@id='00N8E000000VBoh']    ${SAPCODE}
+    Select From List By Value    xpath=//*[@id='00N8E000000VBnN']    ${CollectionProcess}
+    Select From List By Label    xpath=//*[@id='00N8E000000VBoU']    ${Payment Term}
+    Input text    xpath=//*[@id='acc10']    ${Phone}
+    input text    xpath=//*[@id='acc12']    ${website}
+    @{content}    Create List
+    Append To List    ${Content}    1    1    ${CustomerType}
+    Append To List    ${Content}    2    1    ${CollectionProcess}
+    Append To List    ${Content}    3    1    ${Payment Term}
+    Write To Excel File    NewData.xlsx    ${Content}
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBnB']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnD']    Helsinki
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoa']    00520
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoY']    pasila
+    input text    xpath=//*[@id='00N8E000000VBnA']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnC']    helsinki
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoZ']    00520
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoX']    pasila
+    Select From List By Value    xpath=.//*[@id='00N8E000000VBnU']    FIN
+    click element    xpath=//*[@id='bottomButtonRow']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    30
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    ${LastName}
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:1:j_id39']    ${FirstName}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:2:j_id39']    ${Mobile}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:4:j_id39']    ${EmailID}
+    Select From List By value    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_unselected']    0
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_right_arrow']
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id29:j_id30']
+    scrollpageToLocation    0    2500
+    Wait Until Page Contains Element    name=create_new_billing_account    20
+    click element    name=create_new_billing_account
+    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id48']    Billing and Collection
+    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id49']    Invoice BA
+    click element    xpath=//*[contains(@value,'Next')]
+    Select From List By Value    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id36']    ${Billing Channel}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id3:j_id4:additionalInfoSection:j_id54']    ${BillCycle}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id41']    ${BillingLanguage}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id40']    ${BillFormatType}
+    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id44']    ${Ref1}
+    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id45']    ${Ref2}
+    click element    xpath=//*[contains(@value,'Save')]
+    ${BillingNumber}=    Get Text    xpath=//*[@id='00N8E000000Otry_ileinner']
+    log    ${BillingNumber}
+    Should Match Regexp    ${BillingNumber}    \\d{9}
+    Should Start With    ${BillingNumber}    67
+    sleep    6
+    reload page
+    ${ABP number}=    Get Text    xpath=//*[@id='00N8E000000Otrg_ileinner']
+    log    ${ABP number}
+    Open Excel    C:\Python27\ExcelRobotTest\Test.xls
+    Put String To Cell    TestSheet    1    1    ${ABP number}
+    ${ABP number}
+
+Place Order on Existing customer_ENL
+    [Arguments]    ${VATCODE}
+    [Documentation]    Placing an Elisa Netti lite order on an existing Customer for Product VDSL 50M and verifying order is submitted
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    input text    xpath=//*[@id='phSearchInput']    ${VATCODE}
+    click element    xpath=//*[@id='phSearchButton']
+    click element    xpath=//*[@id='Account_body']/table/tbody/tr[2]/th/a
+    scrollpageToLocation    0    2000
+    click element    name=new_opportunity
+    Wait Until Element Is Visible    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button    20
+    click element    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button
+    sleep    3s
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[2]/div/ul/li
+    scrollpageToLocation    0    1000
+    click element    xpath=//*[@id="a0F8E00000517s3UAA~a0Y8E000001a6yAUAQ_anchor"]/i[1]
+    click element    xpath=//*[@id="ngdialog1"]/div[2]/div[1]/div[2]/div/ul/li[3]
+    input text    xpath=//*[@id="ngdialog1"]/div[2]/div[1]/div[3]/div[1]/div/div[1]/div[3]/div[5]/input    00170
+    click element    xpath=//*[@id="ngdialog1"]/div[2]/div[1]/div[3]/div[1]/div/div[1]/div[3]/div[7]/button
+    Wait Until Page Contains Element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[3]/div[1]/div/div[2]/div/div/div[6]/div[1]/div    40
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[3]/div[1]/div/div[2]/div/div/div[6]/div[1]/div
+    click button    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[4]/div[2]/button
+    sleep    2s
+    scrollpageToLocation    0    500
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'Elisa Netti Lite VDSL 50M')]    180
+    Wait Until Page Contains Element    xpath=//*[contains(text(),'Elisa Netti Lite VDSL 50M')]/../../preceding-sibling::div/button[2]    60
+    click element    xpath=//*[contains(text(),'Elisa Netti Lite VDSL 50M')]/../../preceding-sibling::div/button[2]
+    comment    ${frames}=    Execute Javascript
+    comment    log    ${frames}
+    comment    select frame    ${frames}
+    comment    Execute Javascript    window.document.my_element= window.document.getElementsByTagName('iframe')[2]
+    comment    ${Iframe}=    Execute Javascript
+    comment    log    ${Iframe}
+    comment    click element    ${Iframe}
+    Wait Until Page Contains Element    xpath=//*[@id="EditProductDialog"]/iframe    40
+    select frame    xpath=//*[@id="EditProductDialog"]/iframe
+    scrollpageToLocation    0    1500
+    Wait Until Page Does Not Contain    xpath=//*[@id='j_id0:j_id2:0:j_id3:0:j_id6:5:j_id8:0:j_id16']/span[2]/span/a    40
+    click element    xpath=//*[@id="j_id0:j_id2:0:j_id3:0:j_id6:5:j_id8:0:j_id16"]/span[2]/span/a
+    Wait Until Element Is Visible    xpath=//*[@id="s2id_Elisa_Netti:Availability_details:Availabledates_0"]/a/span[1]    60
+    click element    xpath=//*[@id="s2id_Elisa_Netti:Availability_details:Availabledates_0"]/a/span[1]
+    Wait Until Element Is Visible    xpath=//*[@id='select2-drop']/ul[2]/li[1]/div/div/div/div    20
+    click element    xpath=//*[@id='select2-drop']/ul[2]/li[1]/div/div/div/div
+    scrollpageToLocation    0    1000
+    click element    xpath=//button[contains(text(),'Finish')]
+    sleep    20s
+    select window
+    Wait Until Element Is Visible    xpath=//*[@id='s2id_autogen11']/a    60
+    click element    xpath=//*[@id='s2id_autogen11']/a
+    click element    xpath=//*[@id="select2-results-12"]/li[5]
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[4]/span/button
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[1]/span/button
+    sleep    4s
+    select window
+    scrollpageToLocation    0    100
+    Wait Until Page Contains Element    xpath=//*[@id='00N8E000000YQht']    40
+    click element    xpath=//*[@id='00N8E000000YQht']
+    Select From List By Value    xpath=//*[@id='00N8E000000YQht']    No Competitor
+    Select From List By Value    xpath=//*[@id='00N8E000000YQ1j']    Won: Elisa offering better than competitors
+    click element    xpath=//*[contains(@value,'Save')]
+    click element    xpath=//*[@id='j_id0:j_id1:j_id2:j_id3']/input
+    scrollpageToLocation    0    1500
+    Click element    xpath=//*[contains(@title,'Edit - Record 1 - Elisa Netti Lite VDSL 50M')]/../following-sibling::th/a
+    sleep    2s
+    click element    xpath=//*[contains(@value,'Validate and Submit Order')]
+    Alert Should Be Present    Order Validated and Submitted
+    comment    Dismiss Alert
+    comment    sleep    3s
+    Element Should Contain    xpath=//*[@id="00N8E000000YQij_ileinner"]    Submitted
+    scrollpageToLocation    0    1500
+    click link    xpath=//*[contains(@title,'Edit - Record 1 - Elisa Netti Lite VDSL 50M')]/../following-sibling::th/a
+    sleep    5s
+    reload page
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    Created
+    sleep    540s
+    reload page
+    reload page
+    Element Should Contain    xpath=//*[@id='00N20000009pIKD_ileinner']    In Activation
+    scrollpageToLocation    0    1500
+    select frame    xpath=//*[@id="0668E0000000GZB"]
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Order is submitted successfully')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+    ${value}=    Run Keyword And Return Status    Page Should Contain Element    xpath=//div[contains(text(),'Workforce Reservation Completed Successfully')]
+    log    ${value}
+    Run Keyword If    '${value}'=='True'    log    Milestones present
+
+CreateAccount_CollectionData
+    [Arguments]    ${CompanyName}    ${VATCODE}    ${LastName}    ${FirstName}    ${Mobile}    ${EmailID}
+    ...    ${CustomerType}    ${SAPCODE}    ${Custlanguage}    ${CollectionProcess}    ${Payment Term}    ${Phone}
+    ...    ${website}    ${Billing Channel}    ${BillingLanguage}    ${BillFormatType}    ${BillCycle}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    click element    name=new
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]    10
+    click element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    20
+    input text    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    ${CompanyName}
+    click element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id4:searchButton']
+    Wait Until Page Contains Element    xpath=//*[contains(@value, 'Create New')]
+    click element    xpath=//*[contains(@value, 'Create New')]
+    Wait Until Page Contains Element    xpath=//*[@id='00N8E000000VBng']    30
+    Select From List By Value    xpath=//*[@id='00N8E000000VBng']    ${CustomerType}
+    input text    xpath=//*[@id='00N8E000000VBoz']    ${VATCODE}
+    input text    xpath=//*[@id='00N8E000000VBoh']    ${SAPCODE}
+    Select From List By Value    xpath=//*[@id='00N8E000000VBnN']    ${CollectionProcess}
+    Select From List By Label    xpath=//*[@id='00N8E000000VBoU']    ${Payment Term}
+    Input text    xpath=//*[@id='acc10']    ${Phone}
+    input text    xpath=//*[@id='acc12']    ${website}
+    Comment    @{content}    Create List
+    Comment    Append To List    ${Content}    1    1    ${CustomerType}
+    Comment    Append To List    ${Content}    2    1    ${CollectionProcess}
+    Comment    Append To List    ${Content}    3    1    ${Payment Term}
+    Comment    Write To Excel File    NewData.xlsx    ${Content}
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBnB']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnD']    pasila
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoa']    00520
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoY']    Helsinki
+    input text    xpath=//*[@id='00N8E000000VBnA']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnC']    pasila
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoZ']    00520
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoX']    Helsinki
+    Select From List By Value    xpath=.//*[@id='00N8E000000VBnU']    FIN
+    click element    xpath=//*[@id='bottomButtonRow']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    30
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    ${LastName}
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:1:j_id39']    ${FirstName}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:2:j_id39']    ${Mobile}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:4:j_id39']    ${EmailID}
+    Select From List By value    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_unselected']    0
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_right_arrow']
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id29:j_id30']
+    scrollpageToLocation    0    2500
+    Wait Until Page Contains Element    name=create_new_billing_account    20
+    click element    name=create_new_billing_account
+    Comment    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id48']    Billing and Collection
+    Comment    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id49']    Invoice BA
+    click element    xpath=//*[contains(@value,'Next')]
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id37']    ${Billing Channel}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:additionalInfoSection:j_id65']    ${BillCycle}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id42']    ${BillingLanguage}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id41']    ${BillFormatType}
+    comment    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id44']    ${Ref1}
+    comment    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id45']    ${Ref2}
+    Wait Until Page Contains Element    xpath=//*[contains(@value,'Save')]    30
+    click element    xpath=//*[contains(@value,'Save')]
+    ${BillingNumber}=    Get Text    xpath=//*[@id='00N8E000000Otry_ileinner']
+    log    ${BillingNumber}
+    Should Match Regexp    ${BillingNumber}    \\d{9}
+    Should Start With    ${BillingNumber}    67
+    sleep    6
+    reload page
+    ${ABP number}=    Get Text    xpath=//*[@id='00N8E000000Otrg_ileinner']
+    log    ${ABP number}
+    Open Excel    C:\Python27\ExcelRobotTest\Test.xls
+    Put String To Cell    TestSheet    1    1    ${ABP number}
+    ${ABP number}
+
+CreateAccount_CollectionData_Different payer
+    [Arguments]    ${CompanyName}    ${BusinessID}    ${LastName}    ${FirstName}    ${Mobile}    ${EmailID}
+    ...    ${CustomerType}    ${SAPCODE}    ${Custlanguage}    ${CollectionProcess}    ${Payment Term}    ${Phone}
+    ...    ${website}    ${Payer}    ${Billing Channel}    ${BillingLanguage}    ${BillFormatType}    ${BillCycle}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    20
+    click element    xpath=//*[@id='Account_Tab']
+    click element    name=new
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]    10
+    click element    xpath=//*[@id='j_id0:j_id2:j_id4:j_id5']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    20
+    input text    xpath=//*[@id='j_id0:j_id3:searchInput:j_id6:searchNameInput']    ${CompanyName}
+    click element    xpath=//*[@id='j_id0:j_id3:searchInput:j_id4:searchButton']
+    Wait Until Page Contains Element    xpath=//*[contains(@value, 'Create New')]
+    click element    xpath=//*[contains(@value, 'Create New')]
+    Wait Until Page Contains Element    xpath=//*[@id='00N8E000000VBng']    30
+    Select From List By Value    xpath=//*[@id='00N8E000000VBng']    ${CustomerType}
+    input text    xpath=//*[@id='00N8E000000VBnM']    ${BusinessID}
+    input text    xpath=//*[@id='00N8E000000VBoh']    ${SAPCODE}
+    Select From List By Value    xpath=//*[@id='00N8E000000VBnN']    ${CollectionProcess}
+    Select From List By Label    xpath=//*[@id='00N8E000000VBoU']    ${Payment Term}
+    Input text    xpath=//*[@id='acc10']    ${Phone}
+    input text    xpath=//*[@id='acc12']    ${website}
+    Comment    @{content}    Create List
+    Comment    Append To List    ${Content}    1    1    ${CustomerType}
+    Comment    Append To List    ${Content}    2    1    ${CollectionProcess}
+    Comment    Append To List    ${Content}    3    1    ${Payment Term}
+    Comment    Write To Excel File    NewData.xlsx    ${Content}
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBnB']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnD']    pasila
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoa']    00520
+    INPUT TEXT    xpath=//*[@id='00N8E000000VBoY']    Helsinki
+    input text    xpath=//*[@id='00N8E000000VBnA']    Pakkamestarinkatu
+    input text    xpath=//*[@id='00N8E000000VBnC']    pasila
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoZ']    00520
+    INPUT TEXT    xpath=.//*[@id='00N8E000000VBoX']    Helsinki
+    Select From List By Value    xpath=.//*[@id='00N8E000000VBnU']    FIN
+    click element    xpath=//*[@id='bottomButtonRow']/input[1]
+    Wait Until Page Contains Element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    30
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:0:j_id39']    ${LastName}
+    INPUT TEXT    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:1:j_id39']    ${FirstName}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:2:j_id39']    ${Mobile}
+    input text    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:4:j_id39']    ${EmailID}
+    Select From List By value    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_unselected']    0
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id37:j_id38:7:j_id39_right_arrow']
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id='j_id0:mainForm:contactBlock:j_id29:j_id30']
+    scrollpageToLocation    0    2500
+    Wait Until Page Contains Element    name=create_new_billing_account    20
+    click element    name=create_new_billing_account
+    Comment    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id48']    Billing and Collection
+    Comment    input text    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id49']    Invoice BA
+    click element    xpath=//*[@id='j_id0:j_id4:fieldBlock:payer:j_id42:j_id44_lkwgt']/img
+    Select Window    Title=Search ~ Salesforce - Performance Edition
+    select frame    id=searchFrame
+    input text    xpath=//*[@id='lksrch']    ${Payer}
+    click element    xpath=//*[@id='theForm']/div/div[2]/input[2]
+    Select Window    Title=Search ~ Salesforce - Performance Edition
+    select frame    id=resultsFrame
+    click element    xpath=//*[@id='Account_body']/table/tbody/tr[2]/th/a
+    Select Window
+    click element    xpath=//*[contains(@value,'Next')]
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id37']    ${Billing Channel}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:additionalInfoSection:j_id65']    ${BillCycle}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id42']    ${BillingLanguage}
+    Select From List By Value    xpath=//*[@id='j_id0:j_id4:j_id5:billingArrangements:j_id41']    ${BillFormatType}
+    comment    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id44']    ${Ref1}
+    comment    input text    xpath=//*[@id='j_id0:j_id3:j_id4:billingArrangements:j_id45']    ${Ref2}
+    click element    xpath=//*[contains(@value,'Save')]
+    ${BillingNumber}=    Get Text    xpath=//*[@id='00N8E000000Otry_ileinner']
+    log    ${BillingNumber}
+    Should Match Regexp    ${BillingNumber}    \\d{9}
+    Should Start With    ${BillingNumber}    67
+    sleep    6
+    reload page
+    ${ABP number}=    Get Text    xpath=//*[@id='00N8E000000Otrg_ileinner']
+    log    ${ABP number}
+    Open Excel    C:\Python27\ExcelRobotTest\Test.xls
+    Put String To Cell    TestSheet    1    1    ${ABP number}
+    ${ABP number}
+
+Elsa
+    [Arguments]    ${VATCODE}
+    Login With Valid Credentials    ${VALID USER}    ${VALID PASSWORD}
+    Wait Until Page Contains Element    xpath=//*[@id='Account_Tab']    40
+    click element    xpath=//*[@id='Account_Tab']
+    input text    xpath=//*[@id='phSearchInput']    ${VATCODE}
+    click element    xpath=//*[@id='phSearchButton']
+    click element    xpath=//*[@id='Account_body']/table/tbody/tr[2]/th/a
+    scrollpageToLocation    0    2000
+    click element    name=new_opportunity
+    Wait Until Element Is Visible    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button    20
+    click element    xpath=//*[@id='bodyCell']/div/div[4]/div/div[1]/header/div[4]/button
+    Wait Until Page Contains Element    xpath=//*[@id='a0F8E000005188aUAA~a0Y8E000001AgzrUAC_anchor']/i[1]
+    click element    xpath=//*[@id='a0F8E000005188aUAA~a0Y8E000001AgzrUAC_anchor']/i[1]
+    click element    xpath=//*[@id='ngdialog1']/div[2]/div[1]/div[4]/div[2]/button
+    sleep    2s
+    Wait Until Element Is Visible    xpath=//*[contains(text(),'Sales Product')]/../../preceding-sibling::div/button[2]    60
+    click element    xpath=//*[contains(text(),'Sales Product')]/../../preceding-sibling::div/button[2]
+    Wait Until Page Contains Element    xpath=//*[@id="EditProductDialog"]/iframe    60
+    select frame    xpath=//*[@id="EditProductDialog"]/iframe
+    Wait Until Element Is Visible    xpath=//*[contains(text(),'Select Price Lines')]    40
+    click element    xpath=//*[contains(text(),'Select Price Lines')]
+    input text    xpath=//*[@id="PriceLineMultiSelection_filter"]/label/input    apple
+    click element    xpath=//*[@id="a3Y8E0000004bhrUAA"]/td[1]
+    click element    xpath=//*[@id="a3Y8E0000004c6eUAA"]/td[1]
+    click element    xpath=//*[@id="jBoxID1"]/div/div[3]/div[2]
+    Wait Until Element Is Visible    xpath=//*[@id="configurationContainer"]/div/div[1]/div/div/div[1]/table/tbody/tr/td[2]/button[2]    20
+    click element    xpath=//*[@id="configurationContainer"]/div/div[1]/div/div/div[1]/table/tbody/tr/td[2]/button[2]
+    sleep    6s
+    select window
+    reload page
+    comment    Alert Should Be Present    Javascript proxies were not generated for controller csbb.BasketBuilderAppController: may not use public remoted methods inside an iframe.
+    Wait Until Page Contains Element    xpath=//*[@id='s2id_autogen11']/a
+    click element    xpath=//*[@id='s2id_autogen11']/a
+    click element    xpath=//*[@id="select2-results-12"]/li[5]
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[4]/span/button
+    click element    xpath=//*[@id='bodyCell']/div/div[3]/div/header/div[1]/span/button
+    sleep    2s
+    select window
+    Wait Until Page Contains Element    xpath=//*[@id="00N8E000000YQht"]    40
+    scrollpageToLocation    0    100
+    click element    xpath=//*[@id="00N8E000000YQht"]
+    click element    xpath=//*[@id="00N8E000000YQht"]
+    Select From List By Value    xpath=//*[@id='00N8E000000YQht']    No Competitor
+    Select From List By Value    xpath=//*[@id="00N8E000000YQ1j"]    Won: Elisa offering better than competitors
+    click element    xpath=//*[contains(@value,'Save')]
+    click element    xpath=//*[contains(@value,'Next')]
